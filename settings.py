@@ -2,9 +2,22 @@
 import json
 from multiprocessing import Lock
 
-VERSION = 3
-
 class Settings:
+    """
+    The following settings are stored in JSON format:
+    
+    count = (integer) how many RNA polymeraze runners to send
+    fatness = (integer) how wide each runner is... affects maximum density
+    runs = (integer) how many times to run each experiment with the same parameters
+    debug = (boolean) should the program display debug information?
+    
+    wait_block = 
+    wait_pause = 
+    
+    pauses = a list [] of tuples representing pauses in the form (position, starttime, endtime)
+    densities = list [] of alpha values, or in-flow rates, as floating point numbers
+    recorders = a list [] of locations at which to record data
+    """
     def __init__(self, filename):
         self.filename = filename
         try:
@@ -16,12 +29,8 @@ class Settings:
     def load(self):
         """Loads all the data from the datafile"""
         # Load the data from the file
-        f = open(self.filename,'r')
-        data = json.load(f)
-        f.close()
-        
-        # Check versioning
-        assert data['version'] == VERSION 
+        with open(self.filename):
+            data = json.load(f)
         
         # Extract individual variables
         self.count = data['count']
