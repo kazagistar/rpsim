@@ -15,8 +15,11 @@ def loadSettings(filename, settings=None)
         For example, 0.5 means runners will start at half the rate at which they travel accross {1.0}
     debug = (integer) the debug level {0}
     
-    wait_block = 
-    wait_pause = 
+    if a rna polymerase cannot do an action because something is stopping it, these variable determine what strategy to use
+        1 = dont move until (when the blocking thing ends) + (rate()) ie the "wait until clear" strategy
+        0 = keep trying to move by generating new move times until after the block is clear ie the "retry until clear" strategy
+    wait_block = which strategy to use when blocked by an RNA polymeraze
+    wait_pause = which stragegy to use when the current position is paused
     
     pauses = a list [] of tuples representing pauses in the form (position, starttime, endtime)
     recorders = a list [] of locations at which to record data, measured by when a runner leaves the space
