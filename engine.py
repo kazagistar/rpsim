@@ -2,15 +2,18 @@
 from multiprocessing import Pool
 from settings import loadSettings
 from experiment import Experiment
-from results import Results
-import traceback, sys
+import traceback, sys, os
 
-def runexperiment(number, settings, resultsfile):
+def runexperiment(number, settings, resultsfolder):
+    resultsfile = os.path.join(resultsfolder, str(number))
+    if os.path.isfile(resultsfile):
+        print "Skipping " + str(number)
+        return
     print "Starting " + str(number)
     try:
         exp = Experiment(settings)
         exp.run()
-        Results(resultsfile).add(exp.results, density, number)
+        writeResults(exp.results, resultsfile)
         print "Finished " + str(number)
     except:
         # Unfortunately, multiprocessing silently eats exceptions
@@ -26,9 +29,9 @@ if __name__ == "__main__":
         sfile = sys.argv[1]
         rfile = sys.argv[2]
         print "Settings file: " + sfile
-        print "Results file: " + rfile
+        print "Results folder: " + rfile
     except IndexError:
-        print "Bad parameters, should be 'engine.py settingsfile resultsfile'"
+        print "Bad parameters, should be 'engine.py settingsfile resultsfolder'"
         quit()
 
     # Generate variables
@@ -36,9 +39,8 @@ if __name__ == "__main__":
     pool = Pool()
 
     # Queue all simulations
-    for density in settings.densities:
-        for number in xrange(settings.runs):
-            pool.apply_async(runexperiment, [density, number, settings, resultsfile])
+    for number in xrange(settings.runs):
+        pool.apply_async(runexperiment, [number, settings, resultsfile])
 
     # Wait for all simulations to terminate
     pool.close()
