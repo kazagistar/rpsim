@@ -5,7 +5,7 @@ class DiscreteEventSimulator:
     def __init__(self):
         self.heap = []
         
-    def pushEvent(self, event)
+    def pushEvent(self, event):
         """ pushes a event to be resolved """
         heappush(self.heap, (event.time, event))
     

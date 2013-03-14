@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import json
 
-def loadSettings(filename, settings=None)
+def loadSettings(filename, settings=None):
     """
     Loads a file of settings into a settings dictionary, or a set of default settings if none are provided.
     

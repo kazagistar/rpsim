@@ -1,0 +1,12 @@
+{
+"count": 1000,
+"fatness": 1,
+"runs": 10,
+"rate": 10.0,
+"density": 0.1,
+"debug": 0,
+"wait_block": 0,
+"wait_pause": 0,
+"pauses": [500,100,105],
+"recorders": [100,200,300,400,500,600,700,800,900,1000]
+}
