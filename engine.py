@@ -2,6 +2,7 @@
 from multiprocessing import Pool
 from settings import loadSettings
 from experiment import Experiment
+from results import writeResults
 import traceback, sys, os
 
 def runexperiment(number, settings, resultsFolder):
