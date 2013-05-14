@@ -1,12 +1,12 @@
 {
-"count": 1000,
+"size": 1000,
+"time": 50000,
 "fatness": 1,
-"runs": 10,
-"rate": 10.0,
-"density": 0.1,
-"debug": 0,
-"wait_block": 0,
-"wait_pause": 0,
-"pauses": [500,100,105],
-"recorders": [100,200,300,400,500,600,700,800,900,1000]
+"runs": 100,
+"alpha": 5.0,
+"beta": 10.0,
+"recording_frequency": 10.0,
+"pauses": [],
+"recorders": [100,200,300,400,500,600,700,800,900,1000],
+"debug": 0
 }

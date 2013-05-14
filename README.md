@@ -4,4 +4,4 @@ rpsim
 RNA Polymerase Simulator
 
 TODO:
-figure out better result handling and analysis
+analyze experiment.py, and figure out what needs to be done
