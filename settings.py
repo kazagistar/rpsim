@@ -4,18 +4,19 @@ import json
 def load(filename, settings=None):
     """
     Loads a file of settings into a settings dictionary, or a set of default settings if none are provided.
-    
+
     The settings are stored in JSON format. All are optional (default values in {})
-    
+
     size = (integer) the number of positions in each simulation {1}
     time = (float) how long to run the simulation {1}
     fatness = (integer) how wide each runner is {1}
     runs = (integer) how many times to run each experiment with the same parameters {1}
     alpha = (float) insertion rate, or how fast runners should be added into the simulation {1.0}
     beta = (float) flow rate, or how fast runners should move from position to positon {1.0}
+    start_time = (float) when the simulation should start, for setup of initial density {0.0}
     recording_frequency = (float) how often the density is measured and stored {1.0}
     pauses = a list [] of tuples representing pauses in the form (position, starttime, endtime) {[]}
-    recorders = a list [] of locations at which to record data, measured by when a runner leaves the space (start times are recorded automatically) {[]} 
+    recorders = a list [] of locations at which to record data, in addition to the start and end position which are recorded automatically {[]}
     debug = (integer) the debug level {0}
     """
     # Load default settings if needed
@@ -27,6 +28,7 @@ def load(filename, settings=None):
             "runs": 1,
             "alpha": 1.0,
             "beta": 1.0,
+            "initial_density": 0.0,
             "recording_frequency": 1.0,
             "pauses": [],
             "recorders": [],
@@ -37,5 +39,5 @@ def load(filename, settings=None):
     with open(filename) as f:
         datafile = json.load(f)
         settings.update(datafile)
-    
+
     return settings
