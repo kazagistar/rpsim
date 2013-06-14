@@ -1,9 +1,9 @@
 {
 "size": 1000,
-"time": 50000,
+"time": 2000,
 "fatness": 1,
-"runs": 100,
-"alpha": 5.0,
+"runs": 200,
+"alpha": 1.0,
 "beta": 10.0,
 "recording_frequency": 10.0,
 "pauses": [],

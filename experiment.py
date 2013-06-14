@@ -3,6 +3,7 @@ from math import log
 from random import random
 from collections import deque, namedtuple
 from os import path
+from datetime import datetime
 
 from heapdes import Event, DiscreteEventSimulator
 
@@ -27,8 +28,8 @@ class ExperimentSet:
 		for experiment_count in xrange(settings["runs"]):
 			print "Starting experiment " + str(experiment_count)
 			self.experiments.append(Experiment(settings, self.des, experiment_count, output_folder))
-		self.density_recorder = DensityRecorder(settings, self.experiments, output_folder)
-		self.des.trigger(self.density_recorder)
+		self.ticks = Tick(settings, self, output_folder)
+		self.des.trigger(self.ticks)
 		self.des.trigger(End(settings["time"], self))
 		
 	def run(self):
@@ -69,6 +70,8 @@ class Position:
 			else:
 				self.pauses.append(combined)
 				combined = previous
+		self.pauses.append(combined)
+		print str(number) + " : " + str(self.pauses)
 
 	def nextTime(self, time, blocker):
 		""" Generate a time to move next, given a current time. """
@@ -83,7 +86,7 @@ class Position:
 			self.pauses.pop()
 		# If the pause has started, go past the pause, remove it, then repeat
 		while self.pauses and self.pauses[-1].start < time:
-			time = pauses[-1].end + nextRandomTime(self.rate)
+			time = self.pauses[-1].end + nextRandomTime(self.rate)
 			while self.pauses and time > self.pauses[-1].end:
 				self.pauses.pop()
 		return time
@@ -104,6 +107,10 @@ class Particle(Event):
 			unblocked = self.experiment.positions[self.index - self.experiment.settings["fatness"]].particle
 			if unblocked:
 				des.trigger(unblocked)
+				
+		# If at a flux recording location, store the the time in the record
+		if self.experiment.positions[self.index].recorder:
+			self.record.append(self.time)
 			
 		# Move forward
 		self.experiment.positions[self.index].particle = None
@@ -149,6 +156,8 @@ class Spawn(Event):
 		blocker = self.experiment.positions[self.experiment.settings["fatness"]].particle
 		new = Particle(self.experiment.positions[0].nextTime(self.time, blocker), self.experiment)
 		self.experiment.positions[0].particle = new
+		# Update density information
+		self.experiment.positions[0].density += new.time - self.time
 		# Queue if not blocked
 		if not blocker:
 			des.trigger(new)
@@ -170,18 +179,20 @@ class Repeater(Event):
 		des.trigger(self)
 		
 		
-class DensityRecorder(Repeater):
-	def __init__(self, settings, experiments, output_folder):
+class Tick(Repeater):
+	def __init__(self, settings, experiment_set, output_folder):
 		Repeater.__init__(self, self.recordDensityPeriod, settings["recording_frequency"])
-		self.experiments = experiments
-		self.output = open(path.join(output_folder, "densities.csv"), "w")
+		self.experiment_set = experiment_set
+		self.density_output = open(path.join(output_folder, "densities.csv"), "w")
+		self.start_time = datetime.now()
+		self.performance_output = open(path.join(output_folder, "performance.csv"), "w")
 		
 	def recordDensityPeriod(self, time):
-		print time
-		runs = len(self.experiments[0].positions)
+		runs = len(self.experiment_set.experiments)
+		size  = len(self.experiment_set.experiments[0].positions)
 		# Sum the densities at each position over all experiments
-		totals = [0.0] * runs
-		for experiment in self.experiments:
+		totals = [0.0] * size
+		for experiment in self.experiment_set.experiments:
 			for index, position in enumerate(experiment.positions):
 				# Roll over any time on the particle to the next recording
 				if position.particle:
@@ -192,9 +203,19 @@ class DensityRecorder(Repeater):
 					totals[index] += position.density
 					position.density = 0
 		# Divide by number of positions to get average
-		totals = (density / runs for density in totals)
+		totals = (density / (runs * self.repeat_time) for density in totals)
 		# Write to output file as csv (with tab deliminated values)
-		self.output.write("\t".join(str(density) for density in totals) + "\n")
+		self.density_output.write("\t".join(str(density) for density in totals) + "\n")
+		
+		# Write the events that are currently on the heap at the tick time
+		# as well as the time difference since the last tick
+		event_count = len(self.experiment_set.des.heap)
+		now = datetime.now()
+		time_spent = now - self.start_time
+		self.performance_output.write(str(event_count) + "\t" + str(time_spent) + "\n")
+		self.start_time = now
+		
+		print str(time) + " (" + str(time_spent) + ")"
 		
 		
 class End(Event):
@@ -203,5 +224,6 @@ class End(Event):
 		self.experiment_set = experiment_set
 		
 	def run(self, des):
-		self.experiment_set.density_recorder.output.close()
+		self.experiment_set.ticks.density_output.close()
+		self.experiment_set.ticks.performance_output.close()
 		self.experiment_set.des.stop()
