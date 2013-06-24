@@ -1,8 +1,8 @@
 {
 "size": 1000,
-"time": 2700,
-"fatness": 1,
-"runs": 5,
+"time": 1000,
+"fatness": 10,
+"runs": 10,
 "alpha": 49.6,
 "beta": 160.0,
 "recording_frequency": 1.0,

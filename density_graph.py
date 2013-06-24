@@ -12,7 +12,7 @@ with open(sys.argv[1] + "/" + "densities.csv", "rb") as f:
 	# load data
 	data = list(map(float, densities) for densities in csv.reader(f, delimiter='\t'))
 	# averages...
-	data = data[:100]
+	data = data[:1000]
 	pylab.title("Density over time with alpha 0.5")
 	pylab.xlabel("Position")
 	pylab.ylabel("Simulation time (sec)")
