@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from math import log
-from random import random
+from random import random, sample
 from collections import deque, namedtuple
 from os import path
 from datetime import datetime
@@ -16,7 +16,7 @@ class Experiment:
 		self.positions = [Position(settings, number) for number in xrange(settings["size"])]
 		# Create the factory for particles
 		self.des.trigger(Spawn(self, 0))
-		
+
 	def __str__(self):
 		return "Experiment["+", ".join(repr(pos.particle) for pos in self.positions)+"]"
 
@@ -31,7 +31,7 @@ class ExperimentSet:
 		self.ticks = Tick(settings, self, output_folder)
 		self.des.trigger(self.ticks)
 		self.des.trigger(End(settings["time"], self))
-		
+
 	def run(self):
 		self.des.run()
 
@@ -51,13 +51,13 @@ class Position:
 
 		# filter in the pauses for this location {O(n)}
 		pauses = [Pause(start, end) for pos, start, end in settings["pauses"] if pos == number]
-		
+
 		# sort the pauses {O(nlogn)}
 		pauses.sort()
 		# combine overlapping pauses, and build a new list in reverse {O(n)}
 		# uses an accumulator "combined" to combine overlapping pauses, and
 		# then once all overlapping pauses are combined, adds it to the final
-		# pause list. It is last to first, so the resulting list is last to 
+		# pause list. It is last to first, so the resulting list is last to
 		# first and can be treated like a stack.
 		self.pauses = []
 		# early exit if we don't have to deal with pauses
@@ -78,7 +78,7 @@ class Position:
 		# If we are blocked, don't start calculating time til after the block
 		if (blocker is not None) and (blocker.time >= time):
 			time = blocker.time
-		
+
 		# Generate a next time to move
 		time += nextRandomTime(self.rate)
 		# Skip
@@ -107,25 +107,25 @@ class Particle(Event):
 			unblocked = self.experiment.positions[self.index - self.experiment.settings["fatness"]].particle
 			if unblocked:
 				des.trigger(unblocked)
-				
+
 		# If at a flux recording location, store the the time in the record
 		if self.experiment.positions[self.index].recorder:
 			self.record.append(self.time)
-			
+
 		# Move forward
 		self.experiment.positions[self.index].particle = None
 		self.index += 1
-		
+
 		# If at the end, store results and remove from list
 		if self.index == self.experiment.settings["size"]:
 			self.experiment.flux_output.write("\t".join(str(time) for time in self.record) + "\n")
 			return
 		self.experiment.positions[self.index].particle = self
-		
+
 		# If moved past the "fatness" index, trigger a spawn
 		if self.index == self.experiment.settings["fatness"]:
 			des.trigger(Spawn(self.experiment, self.time))
-			
+
 		# Get new time
 		blocker_index = self.index + self.experiment.settings["fatness"]
 		if blocker_index < self.experiment.settings["size"]:
@@ -136,7 +136,7 @@ class Particle(Event):
 		# Update density information
 		self.experiment.positions[self.index].density += new_time - self.time
 		self.time = new_time
-		
+
 		# Requeue if not blocked
 		if not blocker:
 			des.trigger(self)
@@ -156,6 +156,7 @@ class Spawn(Event):
 		blocker = self.experiment.positions[self.experiment.settings["fatness"]].particle
 		new = Particle(self.experiment.positions[0].nextTime(self.time, blocker), self.experiment)
 		self.experiment.positions[0].particle = new
+		
 		# Update density information
 		self.experiment.positions[0].density += new.time - self.time
 		# Queue if not blocked
@@ -216,13 +217,13 @@ class Tick(Repeater):
 		self.start_time = now
 		
 		print str(time) + " (" + str(time_spent) + ")"
-		
-		
+
+
 class End(Event):
 	def __init__(self, time, experiment_set):
 		Event.__init__(self, time)
 		self.experiment_set = experiment_set
-		
+
 	def run(self, des):
 		self.experiment_set.ticks.density_output.close()
 		self.experiment_set.ticks.performance_output.close()
