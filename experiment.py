@@ -3,7 +3,7 @@ from math import log
 from random import random, sample
 from collections import deque, namedtuple
 from os import path
-from datetime import datetime
+from time import clock
 
 from heapdes import Event, DiscreteEventSimulator
 
@@ -118,7 +118,7 @@ class Particle(Event):
 
 		# If at the end, store results and remove from list
 		if self.index == self.experiment.settings["size"]:
-			self.experiment.flux_output.write("\t".join(str(time) for time in self.record) + "\n")
+			self.experiment.flux_output.write(",".join(str(time) for time in self.record) + "\n")
 			return
 		self.experiment.positions[self.index].particle = self
 
@@ -156,7 +156,7 @@ class Spawn(Event):
 		blocker = self.experiment.positions[self.experiment.settings["fatness"]].particle
 		new = Particle(self.experiment.positions[0].nextTime(self.time, blocker), self.experiment)
 		self.experiment.positions[0].particle = new
-		
+
 		# Update density information
 		self.experiment.positions[0].density += new.time - self.time
 		# Queue if not blocked
@@ -178,16 +178,16 @@ class Repeater(Event):
 		self.function(self.time)
 		self.time += self.repeat_time
 		des.trigger(self)
-		
-		
+
+
 class Tick(Repeater):
 	def __init__(self, settings, experiment_set, output_folder):
 		Repeater.__init__(self, self.recordDensityPeriod, settings["recording_frequency"])
 		self.experiment_set = experiment_set
 		self.density_output = open(path.join(output_folder, "densities.csv"), "w")
-		self.start_time = datetime.now()
+		self.start_time = clock()
 		self.performance_output = open(path.join(output_folder, "performance.csv"), "w")
-		
+
 	def recordDensityPeriod(self, time):
 		runs = len(self.experiment_set.experiments)
 		size  = len(self.experiment_set.experiments[0].positions)
@@ -206,16 +206,14 @@ class Tick(Repeater):
 		# Divide by number of positions to get average
 		totals = (density / (runs * self.repeat_time) for density in totals)
 		# Write to output file as csv (with tab deliminated values)
-		self.density_output.write("\t".join(str(density) for density in totals) + "\n")
-		
+		self.density_output.write(",".join(str(density) for density in totals) + "\n")
+
 		# Write the events that are currently on the heap at the tick time
 		# as well as the time difference since the last tick
 		event_count = len(self.experiment_set.des.heap)
-		now = datetime.now()
-		time_spent = now - self.start_time
-		self.performance_output.write(str(event_count) + "\t" + str(time_spent) + "\n")
-		self.start_time = now
-		
+		time_spent = clock() - self.start_time
+		self.performance_output.write(str(event_count) + "," + str(time_spent) + "\n")
+
 		print str(time) + " (" + str(time_spent) + ")"
 
 

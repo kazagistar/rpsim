@@ -1,12 +1,12 @@
 {
 "size": 1000,
-"time": 2000,
-"fatness": 1,
-"runs": 200,
-"alpha": 1.0,
+"time": 500,
+"fatness": 5,
+"runs": 10,
+"alpha": 3.0,
 "beta": 10.0,
-"recording_frequency": 10.0,
-"pauses": [],
-"recorders": [100,200,300,400,500,600,700,800,900,1000],
+"recording_frequency": 0.5,
+"pauses": [[500, 100, 120]],
+"recorders": [500,999],
 "debug": 0
 }
