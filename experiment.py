@@ -9,10 +9,10 @@ from heapdes import Event, DiscreteEventSimulator
 
 class Experiment:
 	""" Represents each experimental run """
-	def __init__(self, settings, des, count, output_folder):
+	def __init__(self, settings, des, count):
 		self.des = des
 		self.settings = settings
-		self.flux_output = open(path.join(output_folder, "flux.%i.csv" % count), "w")
+		self.flux_output = open(path.join(settings['output'], "flux.%i.csv" % count), "w")
 		self.positions = [Position(settings, number) for number in xrange(settings["size"])]
 		# Create the factory for particles
 		self.des.trigger(Spawn(self, 0))
@@ -22,13 +22,13 @@ class Experiment:
 
 class ExperimentSet:
 	""" A set of experiments to all be run on the same heap """
-	def __init__(self, settings, output_folder):
+	def __init__(self, settings):
 		self.des = DiscreteEventSimulator()
 		self.experiments = []
-		for experiment_count in xrange(settings["runs"]):
-			print "Starting experiment " + str(experiment_count)
-			self.experiments.append(Experiment(settings, self.des, experiment_count, output_folder))
-		self.ticks = Tick(settings, self, output_folder)
+		for experiment_number in xrange(settings["runs"]):
+			print "Starting experiment " + str(experiment_number)
+			self.experiments.append(Experiment(settings, self.des, experiment_number))
+		self.ticks = Tick(settings, self)
 		self.des.trigger(self.ticks)
 		self.des.trigger(End(settings["time"], self))
 
@@ -181,12 +181,12 @@ class Repeater(Event):
 
 
 class Tick(Repeater):
-	def __init__(self, settings, experiment_set, output_folder):
+	def __init__(self, settings, experiment_set,):
 		Repeater.__init__(self, self.recordDensityPeriod, settings["recording_frequency"])
 		self.experiment_set = experiment_set
-		self.density_output = open(path.join(output_folder, "densities.csv"), "w")
+		self.density_output = open(path.join(settings['output'], "densities.csv"), "w")
 		self.start_time = clock()
-		self.performance_output = open(path.join(output_folder, "performance.csv"), "w")
+		self.performance_output = open(path.join(settings['output'], "performance.csv"), "w")
 
 	def recordDensityPeriod(self, time):
 		runs = len(self.experiment_set.experiments)

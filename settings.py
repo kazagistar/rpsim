@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import json
+import os
 
 def load(filename, settings=None):
     """
@@ -17,13 +18,14 @@ def load(filename, settings=None):
     recording_frequency = (float) how often the density is measured and stored {1.0}
     pauses = a list [] of tuples representing pauses in the form (position, starttime, endtime) {[]}
     recorders = a list [] of locations at which to record data, in addition to the start and end position which are recorded automatically {[]}
+    output = a string containing where you want the results to be written
     debug = (integer) the debug level {0}
     """
     # Load default settings if needed
     if settings == None:
         settings = {
-        	"size":10,
-        	"time":1,
+            "size":10,
+            "time":1,
             "fatness": 1,
             "runs": 1,
             "alpha": 1.0,
@@ -32,6 +34,7 @@ def load(filename, settings=None):
             "recording_frequency": 1.0,
             "pauses": [],
             "recorders": [],
+            "output": "results",
             "debug": 0
         }
 
@@ -39,5 +42,10 @@ def load(filename, settings=None):
     with open(filename) as f:
         datafile = json.load(f)
         settings.update(datafile)
+        validate(settings)
 
     return settings
+
+def validate(settings):
+    if not os.path.exists(settings['output']):
+        os.makedirs(settings['output'])

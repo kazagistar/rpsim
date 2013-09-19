@@ -6,21 +6,17 @@ import traceback, sys, os
 if __name__ == "__main__":
     # Read arguments
     try:
-        settingsFile = sys.argv[1]
-        resultsFolder = sys.argv[2]
-        print "Settings file: " + settingsFile
-        print "Results folder: " + resultsFolder
+        settingsfile = sys.argv[1]
+        print "Settings file: " + settingsfile
     except IndexError:
-        print "Bad parameters, should be 'engine.py settingsfile resultsfolder'"
+        print "Bad parameters, should be 'python engine.py settingsfile'"
         quit()
 
     # Generate variables
-    settings = load(settingsFile)
+    settings = load(settingsfile)
 
     # Create and run the experiment
-    experiments = ExperimentSet(settings, resultsFolder)
-    for experiment in experiments.experiments:
-    	print len(experiment.positions)
+    experiments = ExperimentSet(settings)
     experiments.run()
     
     print "Experiments concluded :)"
