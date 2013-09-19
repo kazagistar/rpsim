@@ -4,7 +4,6 @@ import os, sys
 
 from settings import load
 from experiment import ExperimentSet
-from results import writeResults
 
 def splice_pauses(settings, matlab_file, matlab_variable):
     pauses = sio.loadmat(matlab_file)[matlab_variable]

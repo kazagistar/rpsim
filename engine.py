@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from settings import load
 from experiment import ExperimentSet
-from results import writeResults
 import traceback, sys, os
 
 if __name__ == "__main__":
