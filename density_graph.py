@@ -1,18 +1,34 @@
-import pylab
+from settings import load
 import sys
 import csv
+from math import ceil
 
-with open(sys.argv[1] + "/" + "densities.csv", "rb") as f:
-	# load data
-	data = list(map(float, densities) for densities in csv.reader(f, delimiter=','))
-	# averages...
-	pylab.title("Density over time")
-	pylab.xlabel("Position")
-	pylab.ylabel("Simulation time (sec)")
-	pylab.imshow(data, vmin=0.0, vmax=0.5, aspect="auto")
-	pylab.colorbar().set_label("Particle density")
-	pylab.gca().invert_yaxis()
-	if sys.argv[2]:
-		pylab.savefig(sys.argv[2])
-	else:
-		pylab.show()
+try:
+    output = sys.argv[2]
+    import matplotlib
+    matplotlib.use("Agg")
+except:
+    output = None
+import pylab
+
+settings = load(sys.argv[1])
+
+with open(settings["output"] + "/" + "densities.csv", "rb") as f:
+    # load data
+    data = list(map(float, densities) for densities in csv.reader(f, delimiter=','))
+
+    # rescale data
+    data = [row[::int(ceil(len(row) / 1000))] for row in data][::int(ceil(len(data) / 1000))]
+        
+    # display
+    pylab.title("Density over time")
+    pylab.xlabel("Position")
+    pylab.ylabel("Simulation time (sec)")
+    extents = [0, settings['size'], settings['time'], 0]
+    pylab.imshow(data, vmin=0.0, vmax=0.5, aspect="auto", extent=extents)
+    pylab.colorbar().set_label("Particle density")
+    pylab.gca().invert_yaxis()
+    if output:
+        pylab.savefig(output)
+    else:
+        pylab.show()
