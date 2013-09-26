@@ -2,7 +2,9 @@
 from heapq import heappush, heappop
 
 class Simulation:
-	def __init__(self):
+	def __init__(self, settings):
+        self.settings = settings
+        *settings["plugins"]
 		self.heap = []
 		self.running = True
 	

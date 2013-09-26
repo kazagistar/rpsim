@@ -1,0 +1,5 @@
+"""
+
+ .. moduleauthor Jakub Gedeon
+
+"""
