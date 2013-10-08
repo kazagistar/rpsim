@@ -12,6 +12,7 @@ then trigger them like {a.trigger(event="name", baz="whatever")}
 """
 from functools import wraps
 from collections import defaultdict
+from re import match
 
 PLUGIN_DIR = "plugins"
 
@@ -46,7 +47,9 @@ class PluginSet:
         for listener in self.events[event]:
             listener(event=event, **kwargs)
 
+
 # Try to load all plugins from the plugin folder
 import os
 for filename in os.listdir(PLUGIN_DIR):
-    __import__("{}.{}".format(PLUGIN_DIR, filename))
+    if match(r'\.py$', filename):
+        __import__("{}.{}".format(PLUGIN_DIR, filename[:-3]))
