@@ -53,6 +53,8 @@ class UnifiedEventSelector:
                 self.time = next_time
                 return next_time, events[index], params[index]
 
+UnifiedEventSelector.next = UnifiedEventSelector.__next__
+
 
 from heapq import heappush, heappop
 

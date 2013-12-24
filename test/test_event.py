@@ -1,6 +1,9 @@
 
 import unittest
-import sys
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 
 from event import UnifiedEventSelector
 
@@ -61,7 +64,7 @@ class TestUnifiedEventSelector(unittest.TestCase):
         a.queue_event(100000, "d", {})
         a.instant_event("a", {})
         a.queue_event(0.00001, "b", {})
-        
+
         sim = (event for time, event, params in a)
         from itertools import islice
-        self.assertEquals(list(islice(sim, 4)), ["a", "b", "c", "c"])
+        self.assertEqual(list(islice(sim, 4)), ["a", "b", "c", "c"])

@@ -1,14 +1,17 @@
 
 import unittest
-from unittest.mock import patch
+try:
+    import unittest.mock as mock
+except ImportError:
+    import mock
 import sys
 
 from plugin import PluginSet
 
 class TestPlugins(unittest.TestCase):
     def setUp(self):
-        self.path_patch = patch('plugin.PluginSet', _plugin_path='test.plugins.')
-        self.module_patch = patch.dict(sys.modules)
+        self.path_patch = unittest.mock.patch('plugin.PluginSet', _plugin_path='test.plugins.')
+        self.module_patch = unittest.mock.patch.dict(sys.modules)
         self.path_patch.__enter__()
         self.module_patch.__enter__()
 
