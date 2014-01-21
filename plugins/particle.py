@@ -1,5 +1,6 @@
-"""
+from plugin import event
+from ratearray import RateArray
 
- .. moduleauthor Jakub Gedeon
-
-"""
+@event
+def simulation_start(settings, **_):
+	movement = RateArray(100)
