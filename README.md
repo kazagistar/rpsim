@@ -11,6 +11,8 @@ Instructions
 
 5. Results will appear in the folder specified, as comma separated values. flux.#.csv files are the flux for each run (the columns are the start time for each particle followed by each measurement location) and the densities.csv file is the averaged densities of all the runs, with each column being a position and each row being a single time step.
 
+6. Additionally, there are a number of somewhat functional graphing tools (density_graph.py, performance_graph.py) which you can attempt to use at your discretion.
+
 
 Features
 ========
@@ -39,15 +41,5 @@ More specifically, there are two main types of events: particle creation, and pa
 
 - Particle width is done by indexed offsets in an array, and thus it is trivial to implement this feature in a fast way.
 
-- Data is recorded in three ways: first, at regular simulation-time intervals, or "ticks", a repeating event is triggered. This event records to a file what fraction of the past time period a positon was full (which is data that is maintained through the course of other operations). Note: All of the density data in parallel simulations are averaged togeather as they are recorded to save space. This allows a good view of how the density of the simulations evolve over time. Second, also on ticks but in a separate file, are recorded some simple performance metrics. This can be easily extended to record other information as well if desired, and is useful for understanding performance in practice, though this is still rudamentary. Third, for each particle in each simulation, a number of recording locations are added, and the time at which each particle passes through them is recorded, which provides more detailed flux information. This data can be processed at any time after the simulation is complete.																																																																																													
-
-
-Future work
-===========
-
-- Emperical, side-by-side comparison with kinetic monte carlo methods in greated depth.
-
-- An attempt to reach amortized constant time per event.
-
-- Further collaboration on refining the PDE mode.
+- Data is recorded in three ways: first, at regular simulation-time intervals, or "ticks", a repeating event is triggered. This event records to a file what fraction of the past time period a positon was full (which is data that is maintained through the course of other operations). Note: All of the density data in parallel simulations are averaged togeather as they are recorded to save space. This allows a good view of how the density of the simulations evolve over time. Second, also on ticks but in a separate file, are recorded some simple performance metrics. This can be easily extended to record other information as well if desired, and is useful for understanding performance in practice, though this is still rudamentary. Third, for each particle in each simulation, a number of recording locations are added, and the time at which each particle passes through them is recorded, which provides more detailed flux information. This data can be processed at any time after the simulation is complete.
 
