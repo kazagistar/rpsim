@@ -19,6 +19,10 @@ class DiscreteEventSimulator:
 	def stop(self):
 		self.running = False
 
+	def __str__(self):
+		return "\n".join(sorted([str((time, str(particle))) for (time, particle) in self.heap]))
+
+
 
 class Event:
 	""" Events are placed in a heap, sorted in decreasing order according to 

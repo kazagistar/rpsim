@@ -17,6 +17,16 @@ with open(settings["output"] + "/" + "densities.csv", "rb") as f:
     # load data
     data = list(map(float, densities) for densities in csv.reader(f, delimiter=','))
 
+    # fill in width
+    dataFilled = []
+    for tick in data:
+        newTick = []
+        length = len(data)
+        for pos in range(length):
+            newTick.append(sum(tick[pos: min(pos + settings['fatness'], length)]))
+        dataFilled.append(newTick)
+    data = dataFilled
+
     # rescale data
     data = [row[::int(ceil(len(row) / 1000))] for row in data][::int(ceil(len(data) / 1000))]
         
