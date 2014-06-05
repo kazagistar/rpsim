@@ -20,6 +20,7 @@ def load(filename, settings=None):
     recorders = a list [] of locations at which to record data, in addition to the start and end position which are recorded automatically {[]}
     output = a string containing where you want the results to be written
     debug = (integer) the debug level {0}
+	initial_density = (float) initial density of particles at the start time of the experiment {0.0}
     """
     # Load default settings if needed
     if settings == None:
@@ -30,12 +31,13 @@ def load(filename, settings=None):
             "runs": 1,
             "alpha": 1.0,
             "beta": 1.0,
-            "initial_density": 0.0,
+            "start_time": 0,
             "recording_frequency": 1.0,
             "pauses": [],
             "recorders": [],
             "output": "results",
-            "debug": 0
+            "debug": 0,
+			"initial_density": 0.0
         }
 
     # Override any settings stored in the file

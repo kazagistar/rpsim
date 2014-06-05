@@ -13,7 +13,7 @@ def generate_pause_length():
 
 def generate_pauses(position_count, pause_count, simulation_length):
 	pauses = []
-	for number in xrange(pause_count):
+	for number in range(pause_count):
 		pauses.append((
 			random.randrange(start=1, stop=position_count-1),
 			random.random() * simulation_length,

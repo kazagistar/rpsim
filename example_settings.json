@@ -1,10 +1,11 @@
 {
 "size": 1000,
 "time": 500,
+"initial_density": 0.31,
 "fatness": 5,
 "runs": 10,
-"alpha": 3.0,
-"beta": 10.0,
+"alpha": 12.74,
+"beta": 90.0,
 "recording_frequency": 0.5,
 "pauses": [[500, 100, 120]],
 "recorders": [500,999],

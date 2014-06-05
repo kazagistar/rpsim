@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from math import log
-from random import random, sample
+from random import random, sample, randrange
 from collections import deque, namedtuple
 from os import path
 from time import clock
@@ -14,9 +14,67 @@ class Experiment:
 		self.settings = settings
 		self.flux_output = open(path.join(settings['output'], "flux.%i.csv" % count), "w")
 		self.positions = [Position(settings, number) for number in xrange(settings["size"])]
+		
+		self.initial_density(settings)
 		# Create the factory for particles
-		self.des.trigger(Spawn(self, 0))
+		self.des.trigger(Spawn(self, settings['start_time']))
 
+	def initial_density(self, settings):
+		# place particles
+		targetDensity = settings["initial_density"]
+		width = settings["fatness"]
+		length = settings["size"]
+		start_time = settings["start_time"]
+		
+		# place particles randomly into array until density is exceeded (TODO: met not exceeded)
+		currentCoverage = 0
+		failure_count = 0
+		while targetDensity > float(currentCoverage) / length:
+			location = randrange(length)
+			blocked = False
+			lowerBound = max(0, location - width + 1)
+			upperBound = min(location + width, length)
+			
+			for possibleBlocker in self.positions[lowerBound: upperBound]:
+				if possibleBlocker.particle != None:
+					blocked = True
+					break
+			
+			if not blocked:
+				self.positions[location].particle = Particle(None, self)
+				self.positions[location].particle.index = location
+				currentCoverage += width
+				failure_count = 0
+			else:
+				failure_count += 1
+			
+			assert failure_count < 10000, "Could not fit particle into array"
+
+		# create valid inital next movement times for all particles
+		for index, position in reversed(list(enumerate(self.positions))):
+			print(index, position.particle.index if position.particle else None)
+			particle = position.particle
+			if particle == None:
+				continue
+			
+			# Get new time
+			blocker_index = index + width
+			if blocker_index < length:
+				blocker = self.positions[blocker_index].particle
+			else:
+				blocker = None
+			particle.time = position.nextTime(start_time, blocker)
+			if blocker == None:
+				self.des.trigger(particle)
+	
+		# trigger spawns if no blocking particles
+		blocked = False
+		for possibleBlocker in self.positions[0: width]:
+			if position.particle != None:
+				blocked = True
+				break
+		if not blocked:
+			self.des.trigger(Spawn(self, start_time))
 	def __str__(self):
 		return "Experiment["+", ".join(repr(pos.particle) for pos in self.positions)+"]"
 
@@ -225,4 +283,6 @@ class End(Event):
 	def run(self, des):
 		self.experiment_set.ticks.density_output.close()
 		self.experiment_set.ticks.performance_output.close()
+		for experiment in self.experiment_set.experiments:
+			experiment.flux_output.close()
 		self.experiment_set.des.stop()

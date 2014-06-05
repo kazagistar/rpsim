@@ -25,7 +25,7 @@ with open(settings["output"] + "/" + "densities.csv", "rb") as f:
     pylab.xlabel("Position")
     pylab.ylabel("Simulation time (sec)")
     extents = [0, settings['size'], settings['time'], 0]
-    pylab.imshow(data, vmin=0.0, vmax=0.5, aspect="auto", extent=extents)
+    pylab.imshow(data, vmin=0.0, vmax=1, aspect="auto", extent=extents)
     pylab.colorbar().set_label("Particle density")
     pylab.gca().invert_yaxis()
     if output:
