@@ -36,6 +36,7 @@ def event(func):
         name = func
         return register
 
+
 class PluginSet:
     _plugin_path = "plugins."
     def __init__(self, *args):
@@ -46,8 +47,8 @@ class PluginSet:
             for event, function_list in plugin.__EVENTS__.items():
                 self.events[event].extend(function_list)
 
-    def trigger(self, event, **kwargs):
+    def trigger(self, event, time, simulation):
         """ Pass the kwargs to all the event listeners which are registered
         to listen for the event parameter """
-        for listener in self.events[event]:
-            listener(event=event, **kwargs)
+        for listener in self.events[event._event]:
+            listener(event, time, simulation)

@@ -5,6 +5,7 @@
 "runs": 10,
 "alpha": 3.0,
 "beta": 10.0,
+"plugins": ["particle"],
 "recording_frequency": 0.5,
 "pauses": [[500, 100, 120]],
 "recorders": [500,999],

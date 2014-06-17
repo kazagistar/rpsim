@@ -1,35 +1,36 @@
-#!/usr/bin/python
-from heapq import heappush, heappop
+from event import UnifiedEventSelector, DESEvent
+from plugin import event, PluginSet
+
 
 class Simulation:
-	def __init__(self, settings):
-        self.settings = settings
-        *settings["plugins"]
-		self.heap = []
-		self.running = True
-	
-	def trigger(self, event):
-		""" pushes a event to be resolved """
-		heappush(self.heap, (event.time, event))
-	
-	def run(self):
-		self.running = True
-		while self.running:
-			time, event = heappop(self.heap)
-			event.run(self)
-		
-	def stop(self):
+	def __init__(self, settings, number):
+		self.plugins = PluginSet(*settings['plugins'])
+		self.events = UnifiedEventSelector()
+		self.settings = settings
 		self.running = False
+		self.number = number
 
+		self.add_kmce = self.events.add_kmce
+		self.add_dese = self.events.add_dese
 
-class Event:
-	""" Events are placed in a heap, sorted in decreasing order according to 
-	what time they fire. They must all implement a run function, which is reponsible 
-	for processing them and placing them back in the queue with a new, higher time. """
+	def run(self):
+		self.add_dese(DESEvent(event='simulation_start', time=0.0))
+		self.add_dese(SimEnd(time=self.settings['time']))
+		self.running = True
+
+		try:
+			while self.running:
+				print(str(self.events.kmcs))
+				print(str(self.events.priority))
+				event, time = next(self.events)
+				event.event(time, self)
+				self.plugins.trigger(event, time, self)
+		except StopIteration:
+			pass
+
+class SimEnd(DESEvent):
 	def __init__(self, time):
-		self.time = time
-	
-	def run(self, des):
-		raise NotImplementedError("Must extend event class to use")
-	
-	# Implementing a __str__ is recommended for debugging
+		super().__init__(event='simulation_end', time=time)
+
+	def event(self, time, simulation):
+		simulation.running = False
