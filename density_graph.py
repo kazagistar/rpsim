@@ -21,7 +21,7 @@ with open(settings["output"] + "/" + "densities.csv", "rb") as f:
     dataFilled = []
     for tick in data:
         newTick = []
-        length = len(data)
+        length = len(tick)
         for pos in range(length):
             newTick.append(sum(tick[pos: min(pos + settings['fatness'], length)]))
         dataFilled.append(newTick)
