@@ -42,7 +42,7 @@ class Experiment:
                     break
             
             if not blocked:
-                self.positions[location].particle = Particle(None, self)
+                self.positions[location].particle = Particle(None, None, self)
                 self.positions[location].particle.index = location
                 currentCoverage += width
                 failure_count = 0
@@ -160,11 +160,11 @@ class Position:
 class Particle(Event):
     """ The particle represents a RNA polymeraze molecule. Each time it moves, it generates a
     "next time" to move."""
-    def __init__(self, time, experiment):
-        Event.__init__(self, time)
+    def __init__(self, start_time, first_move_time, experiment):
+        Event.__init__(self, first_move_time)
         self.experiment = experiment
         self.index = 0
-        self.record = [time]
+        self.record = [start_time]
 
     def run(self, des):
         # If we are unblocking a runner, queue it up
@@ -216,7 +216,7 @@ class Spawn(Event):
     def run(self, des):
         # Generate a new particle, and give it a proper time to move
         blocker = self.experiment.positions[self.experiment.settings["fatness"]].particle
-        new = Particle(self.experiment.positions[0].nextTime(self.time, blocker), self.experiment)
+        new = Particle(self.time, self.experiment.positions[0].nextTime(self.time, blocker), self.experiment)
         self.experiment.positions[0].particle = new
 
         # Queue if not blocked
