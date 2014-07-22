@@ -105,7 +105,10 @@ class Position:
     def __init__(self, settings, number):
         self.particle = None
         self.recorder = number in settings["recorders"]
-        self.rate = settings["beta"]
+        if number == settings["size"] - 1:
+            self.rate = settings["exit_rate"]
+        else:
+            self.rate = settings["crossing_rate"]
         self.density = 0.0
 
         # filter in the pauses for this location {O(n)}
@@ -209,7 +212,7 @@ class Particle(Event):
 class Spawn(Event):
     """ Creates particles at the start of the RNA polymeraze """
     def __init__(self, experiment, time):
-        time += nextRandomTime(experiment.settings["alpha"])
+        time += nextRandomTime(experiment.settings["entry_rate"])
         Event.__init__(self, time)
         self.experiment = experiment
 
