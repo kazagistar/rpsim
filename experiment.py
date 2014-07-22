@@ -132,15 +132,18 @@ class Position:
         self.pauses.append(combined)
         print str(number) + " : " + str(self.pauses)
 
-    def nextTime(self, time, blocker):
+    def nextTime(self, current_time, blocker):
         """ Generate a time to move next, given a current time. """
+        # The earlies possible time to move is "now"
+        time = current_time
+
         # If we are blocked, don't start calculating time til after the block
         if (blocker is not None) and (blocker.time >= time):
             time = blocker.time
 
         # Generate a next time to move
         time += nextRandomTime(self.rate)
-        # Skip
+        # Ignore/skip any pauses that happened before the time we want to move at
         while self.pauses and time > self.pauses[-1].end:
             self.pauses.pop()
         # If the pause has started, go past the pause, remove it, then repeat
@@ -148,6 +151,9 @@ class Position:
             time = self.pauses[-1].end + nextRandomTime(self.rate)
             while self.pauses and time > self.pauses[-1].end:
                 self.pauses.pop()
+
+        # Update density at the position
+        self.density += time - current_time
         return time
 
 
@@ -191,10 +197,7 @@ class Particle(Event):
             blocker = self.experiment.positions[blocker_index].particle
         else:
             blocker = None
-        new_time = self.experiment.positions[self.index].nextTime(self.time, blocker)
-        # Update density information
-        self.experiment.positions[self.index].density += new_time - self.time
-        self.time = new_time
+        self.time = self.experiment.positions[self.index].nextTime(self.time, blocker)
 
         # Requeue if not blocked
         if not blocker:
@@ -216,8 +219,6 @@ class Spawn(Event):
         new = Particle(self.experiment.positions[0].nextTime(self.time, blocker), self.experiment)
         self.experiment.positions[0].particle = new
 
-        # Update density information
-        self.experiment.positions[0].density += new.time - self.time
         # Queue if not blocked
         if not blocker:
             des.trigger(new)
@@ -228,8 +229,8 @@ class Spawn(Event):
 
 class Repeater(Event):
     """ A utility event for adding in extra functionality. It runs a given function on a set frequency """
-    def __init__(self, function, repeat_time):
-        Event.__init__(self, 0)
+    def __init__(self, function, start_time, repeat_time):
+        Event.__init__(self, start_time)
         self.function = function
         self.repeat_time = repeat_time
 
@@ -240,8 +241,8 @@ class Repeater(Event):
 
 
 class Tick(Repeater):
-    def __init__(self, settings, experiment_set,):
-        Repeater.__init__(self, self.recordDensityPeriod, settings["recording_frequency"])
+    def __init__(self, settings, experiment_set):
+        Repeater.__init__(self, self.recordDensityPeriod, settings["recording_frequency"], settings["recording_frequency"])
         self.experiment_set = experiment_set
         self.density_output = open(path.join(settings['output'], "densities.csv"), "w")
         self.start_time = clock()
