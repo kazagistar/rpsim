@@ -3,33 +3,31 @@ from plugin import event
 from event import KMCEvent
 
 @event
-def simulation_start(event, time, simulation):
+def simulation_start(simulation, **_):
     starter = Starter(simulation.settings)
     simulation.add_kmce(starter)
 
 class Starter(KMCEvent):
     def __init__(self, settings):
-        super().__init__(event="particle_created")
+        super().__init__()
         self.rate = settings['alpha']
-        self.settings = settings
         self.first_particle = None
 
     def event(self, time, simulation):
         """ Inserts a new particle into the doubly linked list of particles """
-        new = Particle(settings=self.settings,
-                       next=self.first_particle)
+        new = Particle(settings=simulation.settings, next=self.first_particle)
         try:
             self.first_particle.prev = new
-            print("Creating second particle")
         except AttributeError:
         	pass
         self.first_particle = new
         new.starter = self
         simulation.add_kmce(new)
+        simulation.plugins.trigger(event="particle_start", particle=self, time=time, simulation=simulation)
 
 
 @event('particle_move')
-def resume_starter(particle, time, simulation):
+def resume_starter(particle, simulation, **_):
     # If the moving particle is moving past its fatness, it must be the first particle
     # This means the first part of the array is unblocked, and we can add another particle'
     if particle.fatness == particle.position:
@@ -42,9 +40,9 @@ torque_conversion_factor = 4.99
 
 class Particle(KMCEvent):
     def __init__(self, settings, next=None, prev=None):
-        super().__init__(event="particle_move")
+        super().__init__()
         self.settings = settings
-        self.click_offset_after = 0
+        self.delta_distance_after = 0
         self.position = 0
         self.fatness = settings['fatness']
         self.next = next
@@ -52,17 +50,16 @@ class Particle(KMCEvent):
         self.update_rate()
 
 
-
     @property
     def length_after(self):
         return self.next.position - self.position - self.next.fatness
 
     @property
-    def click_offset_before(self):
-        return self.prev.click_offset_after
-    @click_offset_before.setter
-    def click_offset_before(self, value):
-        self.prev.click_offset_before = value
+    def delta_distance_before(self):
+        return self.prev.delta_distance_after
+    @delta_distance_before.setter
+    def delta_distance_before(self, value):
+        self.prev.delta_distance_after = value
 
     @property
     def length_before(self):
@@ -72,12 +69,13 @@ class Particle(KMCEvent):
     def torque(self):
         t = 0
         if self.next:
-            t += self.click_offset_after
+            t -= self.delta_distance_after
         if self.prev:
-            t -= self.click_offset_before
+            t += self.delta_distance_before
         t *= twist_conversion_factor * torque_conversion_factor
         return t
 
+    # The rate formula is monotonically decreasing
     def update_rate(self):
         if not self.next or self.length_after > 0:
             x = self.torque
@@ -90,19 +88,26 @@ class Particle(KMCEvent):
         self.position += 1
 
         if self.position >= self.settings['size']:
-            self.prev.next = None
+            simulation.plugins.trigger(event="particle_end", particle=self, time=time, simulation=simulation)
+            if self.prev:
+                self.prev.next = None
             return
 
-        try:
-            self.click_offset_after -= 1
+        if self.next:
+            self.delta_distance_after -= 1
             self.next.update_rate()
-        except AttributeError:
-            pass
-        try:
-            self.click_offset_before += 1
+        if self.prev:
+            self.delta_distance_before += 1
             self.prev.update_rate()
-        except AttributeError:
-            pass
 
         self.update_rate()
         simulation.add_kmce(self)
+        simulation.plugins.trigger(event="particle_move", particle=self, time=time, simulation=simulation)
+
+    def __str__(self):
+        s = "Particle(rate={0}, pos={1}".format(self.rate, self.position)
+        if self.prev:
+            s += ", db={0}".format(self.delta_distance_before)
+        if self.next:
+            s += ", da={0}".format(self.delta_distance_after)
+        return s + ")"

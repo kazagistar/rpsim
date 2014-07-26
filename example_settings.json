@@ -2,12 +2,12 @@
 "size": 1000,
 "time": 500,
 "fatness": 5,
-"runs": 10,
+"runs": 1,
 "alpha": 3.0,
 "beta": 10.0,
-"plugins": ["particle"],
+"plugins": ["particle","flux","performance"],
 "recording_frequency": 0.5,
-"pauses": [[500, 100, 120]],
+"pauses": [],
 "recorders": [500,999],
 "output": "example_results"
 }

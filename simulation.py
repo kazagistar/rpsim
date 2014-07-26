@@ -14,23 +14,23 @@ class Simulation:
 		self.add_dese = self.events.add_dese
 
 	def run(self):
-		self.add_dese(DESEvent(event='simulation_start', time=0.0))
+		self.add_dese(SimStart(time=0.0))
 		self.add_dese(SimEnd(time=self.settings['time']))
 		self.running = True
-
 		try:
 			while self.running:
-				print(str(self.events.kmcs))
-				print(str(self.events.priority))
+				#print(self.events.kmcs)
 				event, time = next(self.events)
+				#print(event)
 				event.event(time, self)
-				self.plugins.trigger(event, time, self)
 		except StopIteration:
 			pass
 
-class SimEnd(DESEvent):
-	def __init__(self, time):
-		super().__init__(event='simulation_end', time=time)
-
+class SimStart(DESEvent):
 	def event(self, time, simulation):
+		simulation.plugins.trigger(event="simulation_start", time=time, simulation=simulation)
+
+class SimEnd(DESEvent):
+	def event(self, time, simulation):
+		simulation.plugins.trigger(event="simulation_end", time=time, simulation=simulation)
 		simulation.running = False
