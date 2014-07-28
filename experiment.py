@@ -186,7 +186,8 @@ class Particle(Event):
 
         # If at the end, store results and remove from list
         if self.index == self.experiment.settings["size"]:
-            self.experiment.flux_output.write(",".join(str(time) for time in self.record) + "\n")
+            if self.record[0]:
+                self.experiment.flux_output.write(",".join(str(time) for time in self.record) + "\n")
             return
         self.experiment.positions[self.index].particle = self
 

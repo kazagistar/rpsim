@@ -28,7 +28,7 @@ with open(settings["output"] + "/" + "densities.csv", "rb") as f:
     data = dataFilled
 
     # rescale data
-    data = [row[::int(ceil(len(row) / 1000))] for row in data][::int(ceil(len(data) / 1000))]
+    data = [row[::int(ceil(len(row) / 1000.0))] for row in data][::int(ceil(len(data) / 1000.0))]
         
     # display
     pylab.title("Density over time")
