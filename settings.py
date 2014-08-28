@@ -2,6 +2,7 @@
 import json
 import os
 
+
 def load(filename, settings=None):
     """
     Loads a file of settings into a settings dictionary, or a set of default settings if none are provided.
@@ -20,12 +21,13 @@ def load(filename, settings=None):
     recorders = a list [] of locations at which to record data, in addition to the start and end position which are recorded automatically {[]}
     output = a string containing where you want the results to be written
     debug = (integer) the debug level {0}
+    seed = (integer or null) seeding value for the random number generator, or none if random {null}
     """
     # Load default settings if needed
     if settings == None:
         settings = {
-            "size":10,
-            "time":1,
+            "size": 10,
+            "time": 1,
             "fatness": 1,
             "runs": 1,
             "alpha": 1.0,
@@ -35,7 +37,8 @@ def load(filename, settings=None):
             "pauses": [],
             "recorders": [],
             "output": "results",
-            "debug": 0
+            "debug": 0,
+            "seed": None
         }
 
     # Override any settings stored in the file
@@ -45,6 +48,7 @@ def load(filename, settings=None):
         validate(settings)
 
     return settings
+
 
 def validate(settings):
     if not os.path.exists(settings['output']):

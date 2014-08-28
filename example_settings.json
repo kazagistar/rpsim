@@ -1,13 +1,14 @@
 {
 "size": 1000,
-"time": 500,
-"fatness": 5,
+"time": 1000,
+"fatness": 1,
 "runs": 1,
-"alpha": 3.0,
+"alpha": 2.0,
 "beta": 10.0,
 "plugins": ["particle","flux","performance"],
 "recording_frequency": 0.5,
 "pauses": [],
 "recorders": [500,999],
-"output": "example_results"
+"output": "example_results",
+"seed": 0
 }

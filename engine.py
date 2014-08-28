@@ -17,5 +17,5 @@ if __name__ == "__main__":
     for count in range(settings['runs']):
         sim = Simulation(settings, count)
         sim.run()
-    
+
     print("Simulations concluded :)")

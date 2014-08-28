@@ -15,12 +15,14 @@ from importlib import import_module
 
 PLUGIN_DIR = "plugins"
 
+
 def event(func):
     """ Decorator that makes a function listen for an event (whatever it
     is named)
     
     MAKE SURE YOU ACCEPT KWARGS AND **_ ONLY!!!
     """
+
     def register(method):
         # First, grab the eventlist from the function's module (or create one if none exists)
         namespace = method.__globals__
@@ -28,7 +30,7 @@ def event(func):
         # (Mild hack... name is defined in the calling context)
         eventlist[name].append(method)
         return method
-        
+
     if callable(func):
         name = func.__name__
         return register(func)
@@ -39,6 +41,7 @@ def event(func):
 
 class PluginSet:
     _plugin_path = "plugins."
+
     def __init__(self, *args):
         """ Load a set of plugins passed in as strings """
         self.events = defaultdict(list)

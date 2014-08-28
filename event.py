@@ -33,14 +33,17 @@ class UnifiedEventSelector:
 
 from heapq import heappush, heappop
 
+
 class DESEvent(object):
     """ Superclass for events. When rate is updated, it automatically adjusts the rate in its container KMCSelector """
+
     def __init__(self, time=0):
         # Tech debt, verify time not changed when it should not be.
         self.time = time
 
     def event(self, time, simulation):
         pass
+
 
 class EventQueue:
     def __init__(self):
@@ -68,6 +71,7 @@ class EventQueue:
 
 class KMCEvent(object):
     """ Superclass for events. When rate is updated, it automatically adjusts the rate in its container KMCSelector """
+
     def __init__(self):
         self._selector = None
         self._rate = 0
@@ -75,15 +79,17 @@ class KMCEvent(object):
     @property
     def rate(self):
         return self._rate
+
     @rate.setter
     def rate(self, value):
         if self.rate == 0.0 and self._selector:
             self._selector.active.append(self)
         self._rate = value
-    
+
 
     def __str__(self):
         return "{0}(rate={1})".format(self.__class__.__name__, self.rate)
+
 
 class KMCSelector:
     def __init__(self):
@@ -112,7 +118,7 @@ class KMCSelector:
         for index, event in enumerate(self.active):
             target -= event.rate
             if target < 0.0:
-                self.active[index], self.active[-1] = self.active[-1], self.active[index] 
+                self.active[index], self.active[-1] = self.active[-1], self.active[index]
                 return self.active.pop()
 
     def __str__(self):
