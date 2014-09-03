@@ -1,5 +1,5 @@
 from plugin import event
-import csv
+import csv, os
 
 @event('simulation_start')
 def print_times(simulation, **_):
@@ -10,9 +10,6 @@ def print_times(simulation, **_):
 def track_entry(particle, time, **_):
     particle.flux_start_time = time
 
-@event('particle_move')
-def track_at_recorders(particle, time, **_)
-
 
 @event('particle_end')
 def track_exit(particle, time, simulation, **_):
@@ -20,7 +17,8 @@ def track_exit(particle, time, simulation, **_):
 
 
 @event('simulation_end')
-def print_times(simulation=None, **_):
-    outfile = "flux{1}.csv".format(simulation.number)
+def print_times(simulation, **_):
+    outfile = "flux{0}.csv".format(simulation.number)
+    outfile = os.path.join(simulation.settings['output'], outfile)
     with open(outfile, "w") as out:
         csv.writer(out).writerows(simulation.flux_record)

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import json
 import os
+import hashlib
+import copy
 
 
 def load(filename, settings=None):
@@ -20,6 +22,7 @@ def load(filename, settings=None):
     pauses = a list [] of tuples representing pauses in the form (position, starttime, endtime) {[]}
     recorders = a list [] of locations at which to record data, in addition to the start and end position which are recorded automatically {[]}
     output = a string containing where you want the results to be written
+    cores = number of processes that will evaluate in parallel
     debug = (integer) the debug level {0}
     seed = (integer or null) seeding value for the random number generator, or none if random {null}
     """
@@ -37,6 +40,7 @@ def load(filename, settings=None):
             "pauses": [],
             "recorders": [],
             "output": "results",
+            "cores": 1,
             "debug": 0,
             "seed": None
         }
@@ -53,3 +57,10 @@ def load(filename, settings=None):
 def validate(settings):
     if not os.path.exists(settings['output']):
         os.makedirs(settings['output'])
+
+def hash_settings(settings):
+    # remove values that don't change individual sim output for the hash
+    settings = copy.copy(settings)
+    del settings['cores']
+    del settings['runs']
+    return hashlib.md5(json.dumps(settings, sort_keys=True).encode('utf-8')).hexdigest()

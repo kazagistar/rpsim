@@ -15,7 +15,7 @@ class Simulation:
         self.add_dese = self.events.add_dese
 
     def run(self):
-        random.seed(self.settings['seed'])
+        random.seed((self.settings['seed'], self.number))
         self.add_dese(SimStart(time=0.0))
         self.add_dese(SimEnd(time=self.settings['time']))
         self.running = True
