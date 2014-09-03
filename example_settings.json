@@ -9,7 +9,7 @@
 "plugins": ["particle","flux","performance"],
 "recording_frequency": 0.5,
 "pauses": [],
-"recorders": [500,999],
+"recorders": [5],
 "output": "example_results",
 "seed": 0
 }
