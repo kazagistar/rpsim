@@ -47,52 +47,35 @@ class Particle(KMCEvent):
     def __init__(self, settings, next=None, prev=None):
         super().__init__()
         self.settings = settings
-        self.delta_distance_after = 0
         self.position = 0
-        self.fatness = settings['fatness']
+        self.top_width = settings['top_width']
+        self.base_width = settings['base_width']
         self.next = next
         self.prev = prev
+        if self.next:
+            self.original_length_after = next.position - settings['base_width']
+        else:
+            self.original_length_after = 0
         self.update_rate()
-
-    # Space between this particle and the back of the next one
-    @property
-    def length_after(self):
-        return self.next.position - self.position - self.next.fatness
-
-    # Space between the back of this particle and the previous one
-    @property
-    def length_before(self):
-        return self.position - self.prev.position - self.fatness
-
-    @property
-    def delta_distance_before(self):
-        return self.prev.delta_distance_after
-
-    @delta_distance_before.setter
-    def delta_distance_before(self, value):
-        self.prev.delta_distance_after = value
 
     # HORRIBLE HACKS AND WRONG
     def torque(self):
         t = 0
         if self.next:
-            la = self.length_after + 1
-            ola = la - self.delta_distance_after
+            la = self.next.position - self.position - self.base_width
+            ola = self.original_length_after
             t += log(ola / la)
         if self.prev:
-            if self.length_before < 0:
-                pass
-            lb = self.length_before + 1
-            olb = lb - self.delta_distance_before
+            lb = self.position - self.prev.position - self.base_width
+            olb = self.prev.original_length_after
             t -= log(olb / lb)
         return twist_conversion_factor * torque_conversion_factor * 3 * t
 
     # The rate formula is monotonically decreasing
     def update_rate(self):
-        if not self.next or self.length_after > 0:
+        if not self.next or (self.next.position - self.position - self.top_width > 0):
             x = self.torque()
-            rate = -0.0002 * pow(x, 5) + 0.0008 * pow(x, 4) + 0.0041 * pow(x, 3) - 0.035 * pow(x,
-                                                                                               2) - 0.2166 * x + 22.3574
+            rate = -0.0002 * pow(x, 5) + 0.0008 * pow(x, 4) + 0.0041 * pow(x, 3) - 0.035 * pow(x, 2) - 0.2166 * x + 22.3574
             self.rate = max(rate, 0)
         else:
             self.rate = 0
