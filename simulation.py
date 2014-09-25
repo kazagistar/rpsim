@@ -21,10 +21,8 @@ class Simulation:
         self.running = True
         try:
             while self.running:
-                # print(self.events.kmcs)]
+                # print(self.events.kmcs)
                 event, time = next(self.events)
-                if time > 24:
-                    pass
                 # print(event)
                 event.event(time, self)
         except StopIteration:

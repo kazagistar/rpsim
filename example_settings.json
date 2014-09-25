@@ -6,7 +6,6 @@
 "runs": 10,
 "cores": 2,
 "alpha": 1.5,
-"beta": 10.0,
 "plugins": ["particle","flux","performance"],
 "recording_frequency": 0.5,
 "recorders": [5],

@@ -82,8 +82,6 @@ class KMCEvent(object):
 
     @rate.setter
     def rate(self, value):
-        if self.rate == 0.0 and self._selector:
-            self._selector.active.append(self)
         self._rate = value
 
 
@@ -100,16 +98,9 @@ class KMCSelector:
         event._selector = self
 
     def event_sum(self):
-        # Sum the rates, deleting rates of 0
         self.total = 0.0
-        i = 0
-        while i < len(self.active):
-            rate = self.active[i].rate
-            if rate == 0 and i < len(self.active) - 1:
-                self.active[i] = self.active.pop()
-            else:
-                self.total += rate
-                i += 1
+        for event in self.active:
+            self.total += event._rate
         return self.total
 
     def next(self):
@@ -117,10 +108,10 @@ class KMCSelector:
         target = random.uniform(0.0, self.total)
         for index, event in enumerate(self.active):
             target -= event.rate
-            if target < 0.0:
+            if target <= 0.0:
                 self.active[index], self.active[-1] = self.active[-1], self.active[index]
                 return self.active.pop()
 
     def __str__(self):
         return "KMCSelector(active={0})".format(
-            str(list(map(str, self.active))))
+            str(sorted(list(map(str, self.active)))))

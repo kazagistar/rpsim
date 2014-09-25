@@ -81,7 +81,6 @@ class Particle(KMCEvent):
 
     def event(self, time, simulation):
         self.position += 1
-
         if self.position >= self.settings['size']:
             simulation.plugins.trigger(event="particle_end", particle=self, time=time, simulation=simulation)
             if self.prev:
@@ -97,11 +96,8 @@ class Particle(KMCEvent):
         self.update_rate()
         simulation.add_kmce(self)
         simulation.plugins.trigger(event="particle_move", particle=self, time=time, simulation=simulation)
-
+        
     def __str__(self):
-        s = "Particle(rate={0}, pos={1}".format(self.rate, self.position)
-        if self.prev:
-            s += ", db={0}".format(self.delta_distance_before)
-        if self.next:
-            s += ", da={0}".format(self.delta_distance_after)
-        return s + ")"
+        ola = self.original_length_after if self.next else "X"
+        olb = self.prev.original_length_after if self.prev else "X"
+        return "Particle(rate={0}, pos={1}, olb={3}, ola={2})".format(self.rate, self.position, ola, olb)
