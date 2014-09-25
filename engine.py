@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from settings import load, hash_settings
+from settings import load
 from simulation import Simulation
 import sys, os, traceback
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         with open(lockfile, 'r') as f:
             count, shash = f.read().split(' ')
             # check if the settings have changed at all
-            if shash == hash_settings(settings):
+            if shash == settings.hash():
                 start = int(count) + 1
             else:
                 start = 0
@@ -62,4 +62,4 @@ if __name__ == "__main__":
     # Record finished runs back into lock file
     for counted in finished:
         with open(lockfile, 'w') as f:
-            f.write(str(counted) + " " + hash_settings(settings))
+            f.write(str(counted) + " " + settings.hash())

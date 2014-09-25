@@ -32,7 +32,7 @@ class Starter(KMCEvent):
 def resume_starter(particle, simulation, **_):
     # If the moving particle is moving past its fatness, it must be the first particle
     # This means the first part of the array is unblocked, and we can add another particle'
-    if particle.fatness == particle.position:
+    if particle.top_width == particle.position:
         simulation.add_kmce(particle.starter)
         particle.starter = None
 
@@ -58,7 +58,6 @@ class Particle(KMCEvent):
             self.original_length_after = 0
         self.update_rate()
 
-    # HORRIBLE HACKS AND WRONG
     def torque(self):
         t = 0
         if self.next:
@@ -91,10 +90,8 @@ class Particle(KMCEvent):
             return
 
         if self.next:
-            self.delta_distance_after -= 1
             self.next.update_rate()
         if self.prev:
-            self.delta_distance_before += 1
             self.prev.update_rate()
 
         self.update_rate()

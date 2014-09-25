@@ -1,14 +1,14 @@
 {
-"size": 10,
+"size": 50,
 "time": 50,
-"fatness": 2,
+"base_width": 2,
+"top_width": 3,
 "runs": 10,
 "cores": 2,
 "alpha": 1.5,
 "beta": 10.0,
 "plugins": ["particle","flux","performance"],
 "recording_frequency": 0.5,
-"pauses": [],
 "recorders": [5],
 "output": "example_results",
 "seed": 0
