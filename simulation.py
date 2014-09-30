@@ -3,7 +3,7 @@ from plugin import event, PluginSet
 import random
 
 
-class Simulation:
+class Simulation(object):
     def __init__(self, settings, number):
         self.plugins = PluginSet(*settings['plugins'])
         self.events = UnifiedEventSelector()
@@ -22,7 +22,7 @@ class Simulation:
         try:
             while self.running:
                 # print(self.events.kmcs)
-                event, time = next(self.events)
+                event, time = self.events.next()
                 # print(event)
                 event.event(time, self)
         except StopIteration:

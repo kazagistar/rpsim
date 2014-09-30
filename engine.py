@@ -3,6 +3,13 @@ from settings import load
 from simulation import Simulation
 import sys, os, traceback
 
+try:
+    # Python 3
+    FileNotFoundError
+except NameError:
+    # Python 2
+    FileNotFoundError = IOError
+
 # Function to execute simulation runs in parallel, with manual exception handling
 def sim_run(count):
     try:

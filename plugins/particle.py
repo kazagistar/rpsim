@@ -11,7 +11,7 @@ def simulation_start(simulation, **_):
 
 class Starter(KMCEvent):
     def __init__(self, settings):
-        super().__init__()
+        super(Starter, self).__init__()
         self.rate = settings['alpha']
         self.first_particle = None
 
@@ -45,7 +45,7 @@ torque_conversion_factor = (50 / 3.0) * pi / 2
 
 class Particle(KMCEvent):
     def __init__(self, settings, next=None, prev=None):
-        super().__init__()
+        super(Particle, self).__init__()
         self.settings = settings
         self.position = 0
         self.top_width = settings['top_width']
@@ -63,11 +63,11 @@ class Particle(KMCEvent):
         if self.next:
             la = self.next.position - self.position - self.base_width
             ola = self.original_length_after
-            t += log(ola / la)
+            t += log(ola * 1.0 / la)
         if self.prev:
             lb = self.position - self.prev.position - self.base_width
             olb = self.prev.original_length_after
-            t -= log(olb / lb)
+            t -= log(olb * 1.0 / lb)
         return twist_conversion_factor * torque_conversion_factor * 3 * t
 
     # The rate formula is monotonically decreasing

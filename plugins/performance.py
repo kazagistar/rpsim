@@ -6,7 +6,7 @@ from time import clock
 
 class Ticker(DESEvent):
     def __init__(self, update_time):
-        super().__init__()
+        super(Ticker, self).__init__()
         self.start = clock()
         self.update_time = update_time
 

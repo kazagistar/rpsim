@@ -39,7 +39,7 @@ def event(func):
         return register
 
 
-class PluginSet:
+class PluginSet(object):
     _plugin_path = "plugins."
 
     def __init__(self, *args):

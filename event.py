@@ -3,7 +3,7 @@ import random
 from math import log
 
 
-class UnifiedEventSelector:
+class UnifiedEventSelector(object):
     def __init__(self, start_time=0):
         self.priority = EventQueue()
         self.kmcs = KMCSelector()
@@ -14,7 +14,7 @@ class UnifiedEventSelector:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def next(self):
         if self.kmcs.event_sum() == 0:
             if len(self.priority) == 0:
                 raise StopIteration()
@@ -45,7 +45,7 @@ class DESEvent(object):
         pass
 
 
-class EventQueue:
+class EventQueue(object):
     def __init__(self):
         self._heap = []
         self._count = 0
@@ -89,7 +89,7 @@ class KMCEvent(object):
         return "{0}(rate={1})".format(self.__class__.__name__, self.rate)
 
 
-class KMCSelector:
+class KMCSelector(object):
     def __init__(self):
         self.active = []
 

@@ -3,7 +3,13 @@ import json
 import os
 import hashlib
 import copy
-from collections.abc import Mapping
+
+try:
+    # Python 3
+    from collections.abc import Mapping
+except ImportError:
+    # Python 2
+    from collections import Mapping
 
 class Settings(Mapping):
     """
