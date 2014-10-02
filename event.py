@@ -1,6 +1,8 @@
 from collections import deque
 import random
 from math import log
+import pickset
+import traceback
 
 
 class UnifiedEventSelector(object):
@@ -21,7 +23,7 @@ class UnifiedEventSelector(object):
             else:
                 _, self.time = self.priority.peek()
                 return self.priority.pop()
-        next_time = random.expovariate(self.kmcs.total) + self.time
+        next_time = random.expovariate(self.kmcs.event_sum()) + self.time
         if len(self.priority) != 0:
             _, cutoff = self.priority.peek()
             if next_time > cutoff:
@@ -71,7 +73,6 @@ class EventQueue(object):
 
 class KMCEvent(object):
     """ Superclass for events. When rate is updated, it automatically adjusts the rate in its container KMCSelector """
-
     def __init__(self):
         self._selector = None
         self._rate = 0
@@ -83,35 +84,27 @@ class KMCEvent(object):
     @rate.setter
     def rate(self, value):
         self._rate = value
+        if self._selector:        
+            self._selector.swap(self, self)
 
+    def __measure__(self):
+        return self._rate
 
     def __str__(self):
         return "{0}(rate={1})".format(self.__class__.__name__, self.rate)
 
 
-class KMCSelector(object):
-    def __init__(self):
-        self.active = []
-
+class KMCSelector(pickset.PickSet):
     def add_event(self, event):
-        self.active.append(event)
         event._selector = self
+        self.add(event)
 
     def event_sum(self):
-        self.total = 0.0
-        for event in self.active:
-            self.total += event._rate
-        return self.total
+        return self.caches[-1][0]
 
     def next(self):
         # Pick the event randomly
-        target = random.uniform(0.0, self.total)
-        for index, event in enumerate(self.active):
-            target -= event.rate
-            if target <= 0.0:
-                self.active[index], self.active[-1] = self.active[-1], self.active[index]
-                return self.active.pop()
-
-    def __str__(self):
-        return "KMCSelector(active={0})".format(
-            str(sorted(list(map(str, self.active)))))
+        event = self.pick(random.uniform(0.0, self.event_sum()))
+        self.delete(event)
+        event._selector = None
+        return event
