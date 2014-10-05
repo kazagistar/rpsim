@@ -6,12 +6,12 @@ import copy
 
 try:
     # Python 3
-    from collections.abc import Mapping
+    from collections.abc import MutableMapping
 except ImportError:
     # Python 2
-    from collections import Mapping
+    from collections import MutableMapping
 
-class Settings(Mapping):
+class Settings(MutableMapping):
     """
     size = (integer) the number of positions in each simulation
     time = (float) how long to run the simulation
@@ -40,11 +40,17 @@ class Settings(Mapping):
         assert key in self._known, "Settings must contain {0}".format(key)
         return self._known[key]
 
+    def __delitem__(self, key):
+        self._known.__delitem__(key)
+
+    def __setitem__(self, key, value):
+        self._known.__setitem__(key, value)
+
     def __iter__(self):
-        self._known.__iter__()
+        return self._known.__iter__()
 
     def __len__(self):
-        self._known.__len__()
+        return self._known.__len__()
 
     def hash(self):
         # remove values that don't change individual sim output for the hash
