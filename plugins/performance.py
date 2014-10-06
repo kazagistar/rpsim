@@ -17,7 +17,6 @@ class Ticker(DESEvent):
         self.time += self.update_time
         simulation.add_dese(self)
 
-
 @event
 def simulation_start(simulation=None, **_):
     simulation.performance_record = []

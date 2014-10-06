@@ -19,7 +19,7 @@ class Starter(KMCEvent):
         """ Inserts a new particle into the doubly linked list of particles """
         if self.first_particle and self.first_particle.position >= simulation.settings['size']:
             self.first_particle = None
-        new = Particle(settings=simulation.settings, next=self.first_particle)
+        new = Particle(simulation=simulation, next=self.first_particle)
         if self.first_particle:
             self.first_particle.prev = new
         self.first_particle = new
@@ -44,19 +44,19 @@ torque_conversion_factor = (50 / 3.0) * pi / 2
 
 
 class Particle(KMCEvent):
-    def __init__(self, settings, next=None, prev=None):
+    def __init__(self, simulation, next=None, prev=None):
         super(Particle, self).__init__()
-        self.settings = settings
+        self.settings = simulation.settings
         self.position = 0
-        self.top_width = settings['top_width']
-        self.base_width = settings['base_width']
+        self.top_width = self.settings['top_width']
+        self.base_width = self.settings['base_width']
         self.next = next
         self.prev = prev
         if self.next:
-            self.original_length_after = next.position - settings['base_width']
+            self.original_length_after = next.position - self.settings['base_width']
         else:
             self.original_length_after = 0
-        self.update_rate()
+        self.update_rate(simulation)
 
     def torque(self):
         t = 0
@@ -71,13 +71,14 @@ class Particle(KMCEvent):
         return twist_conversion_factor * torque_conversion_factor * 3 * t
 
     # The rate formula is monotonically decreasing
-    def update_rate(self):
+    def update_rate(self, simulation):
         if not self.next or (self.next.position - self.position - self.top_width > 0):
             x = self.torque()
             rate = -0.0002 * pow(x, 5) + 0.0008 * pow(x, 4) + 0.0041 * pow(x, 3) - 0.035 * pow(x, 2) - 0.2166 * x + 22.3574
             self.rate = max(rate, 0)
         else:
             self.rate = 0
+        simulation.plugins.trigger(event="particle_rate_update", particle=self, simulation=simulation)
 
     def event(self, time, simulation):
         self.position += 1
@@ -85,15 +86,15 @@ class Particle(KMCEvent):
             simulation.plugins.trigger(event="particle_end", particle=self, time=time, simulation=simulation)
             if self.prev:
                 self.prev.next = None
-                self.prev.update_rate()
+                self.prev.update_rate(simulation)
             return
 
         if self.next:
-            self.next.update_rate()
+            self.next.update_rate(simulation)
         if self.prev:
-            self.prev.update_rate()
+            self.prev.update_rate(simulation)
 
-        self.update_rate()
+        self.update_rate(simulation)
         simulation.add_kmce(self)
         simulation.plugins.trigger(event="particle_move", particle=self, time=time, simulation=simulation)
         

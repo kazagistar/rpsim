@@ -22,9 +22,9 @@ class Simulation(object):
         try:
             while self.running:
                 # print(self.events.kmcs)
-                event, time = self.events.next()
+                event, self.time = self.events.next()
                 # print(event)
-                event.event(time, self)
+                event.event(self.time, self)
         except StopIteration:
             pass
 
